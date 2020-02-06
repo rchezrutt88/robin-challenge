@@ -1,10 +1,6 @@
-import express, {
-  NextFunction,
-  Request,
-  Response,
-} from 'express'
+import express, {NextFunction, Request, Response,} from 'express'
 import logger from 'morgan'
-import createHttpError, { HttpError } from 'http-errors'
+import createHttpError, {HttpError} from 'http-errors'
 import path from 'path'
 import cookieParser from 'cookie-parser'
 import indexRouter from './routes'
@@ -43,4 +39,4 @@ app.use(function(err: HttpError, req: Request, res: Response, next: NextFunction
 
 app.listen(3000, () => {
   console.log('Server listening on port 3000')
-})
+});
