@@ -6,7 +6,8 @@ import cookieParser from 'cookie-parser'
 import indexRouter from './routes'
 import usersRouter from './routes/users'
 
-import {findUsers, getMeetingTimes} from "./models/meeting_time";
+import {findUsers, getMeetingTimes, transformMeetingTimes} from "./models/meeting_time";
+import {Interval} from "luxon";
 
 const app = express();
 
@@ -35,8 +36,14 @@ declare global {
   }
 }
 app.use('/available_times', (req: Request, res: Response) => {
-  const meetingTimes = getMeetingTimes(req.body.start, req.body.end, findUsers(...req.body.user_ids));
-  res.send(meetingTimes)
+  const users = findUsers(...req.body.user_ids);
+  const timeWindow = Interval.fromISO(`${req.body.start}/${req.body.end}`);
+  const meetingTimes = getMeetingTimes(
+    timeWindow,
+    users
+  );
+  const responseBody = transformMeetingTimes(meetingTimes);
+  res.send(responseBody)
 });
 
 // catch 404 and forward to error handler
