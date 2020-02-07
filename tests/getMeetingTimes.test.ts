@@ -192,6 +192,17 @@ describe("Meeting Time App", () => {
     await appTest.get("/available_times").expect(400);
   });
 
+  test("unknown users", async () => {
+    await appTest
+      .get("/available_times")
+      .send({
+        user_ids: [99, 100, 101],
+        start: "2019-01-01T00:00:00+0000",
+        end: "2019-01-01T23:59:59+0000"
+      })
+      .expect(404, '{"error":"Cannot find users with ids 99,100,101"}');
+  });
+
   test("valid request", async () => {
     await appTest
       .get("/available_times")
