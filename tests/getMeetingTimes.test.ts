@@ -1,6 +1,10 @@
-import {findUsers, getMeetingTimes, transformMeetingTimes} from "../src/lib/meeting_time";
+import {
+  findUsers,
+  getMeetingTimes,
+  transformMeetingTimes
+} from "../src/lib/meeting_time";
 import * as data from "../src/user_data-1.json";
-import {Interval} from "luxon";
+import { Interval } from "luxon";
 import supertest from "supertest";
 import * as http from "http";
 import app from "../src/app";

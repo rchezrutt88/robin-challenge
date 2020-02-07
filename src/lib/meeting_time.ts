@@ -1,4 +1,4 @@
-import {Interval} from "luxon";
+import { Interval } from "luxon";
 import data from "../user_data-1.json";
 
 interface Event {
@@ -28,12 +28,32 @@ export const findUsers = (...ids: number[]): User[] => {
   });
 };
 
+const offWorkIntervals = (
+  intervalArray: Interval[],
+  startWork: string,
+  endWork: string
+): Interval[] => {
+  const { start, end } = intervalArray.reduce((acc, curr) => acc.union(curr));
+
+};
+
 export const getMeetingTimes = (
   timeWindow: Interval,
-  users: User[]
+  users: User[],
+  opts = {
+    workingHours: false
+  }
 ): Interval[] => {
   const busy: Interval[] = Interval.merge(
-    users.map(u => toIntervalArray(u.events)).flat()
+    users
+      .map(u => {
+        const intervalArray = toIntervalArray(u.events);
+        if (opts.workingHours) {
+          intervalArray.concat();
+        }
+        return toIntervalArray(u.events);
+      })
+      .flat()
   );
   return timeWindow.difference(...busy);
 };
