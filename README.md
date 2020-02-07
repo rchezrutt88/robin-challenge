@@ -24,3 +24,7 @@ It has one endpoint `GET /available_times`, which expects a request body of the 
 ```
 
 ...representing possible times when all users are free to meet.
+
+### Tests
+
+Some simple tests can be found in `tests/meeting_time_app.spec.ts`
