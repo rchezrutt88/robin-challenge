@@ -1,4 +1,6 @@
 import { Interval } from "luxon";
+import * as moment from "moment";
+const moment = require("moment");
 import data from "../user_data-1.json";
 
 interface Event {
@@ -32,10 +34,30 @@ interface MeetingTimeOptions {
   workingHours?: boolean;
 }
 
-const sliceWorkingHours = (
+const normalizeIntervals = (
+  workingHours: { start: string; end: string }[]
+): Interval => {
+  const sameDay = workingHours.map(i => {
+    const [startHour, startMinutes] = i.start.split(":");
+    const [endtHour, endMinutes] = i.end.split(":");
+
+    Interval.fromDateTimes(
+      moment()
+        .set("hour", startHour)
+        .set("minute", startMinutes),
+      moment()
+        .set("hours", endtHour)
+        .set("minute", endMinutes)
+    );
+  });
+};
+
+const sliceWorkingHours: Interval[] = (
   timeWindow: Interval,
   workingHours: Interval[]
-) => {};
+) => {
+  workingHours;
+};
 
 export const getMeetingTimes = (
   timeWindow: Interval,
