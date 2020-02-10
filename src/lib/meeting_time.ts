@@ -36,12 +36,11 @@ interface MeetingTimeOptions {
 
 const normalizeIntervals = (
   workingHours: { start: string; end: string }[]
-): Interval => {
-  const sameDay = workingHours.map(i => {
+): Interval | void => {
+  const workingDayArray = workingHours.map(i => {
     const [startHour, startMinutes] = i.start.split(":");
     const [endtHour, endMinutes] = i.end.split(":");
-
-    Interval.fromDateTimes(
+    return Interval.fromDateTimes(
       moment()
         .set("hour", startHour)
         .set("minute", startMinutes),
@@ -50,6 +49,9 @@ const normalizeIntervals = (
         .set("minute", endMinutes)
     );
   });
+  if (workingDayArray.length < 1) {
+    return;
+  }
 };
 
 const sliceWorkingHours: Interval[] = (
