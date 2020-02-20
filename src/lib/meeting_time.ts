@@ -70,6 +70,24 @@ export const getMeetingTimes = (
     users.map(u => toIntervalArray(u.events)).flat()
   );
   if (options.workingHours) {
+    return timeWindow.difference(...busy).reduce((acc, cV) => {
+      if (
+        cV.start <
+        moment(cV.start)
+          .hour(workingHours.start.hour())
+          .minute(workingHours.start.minute())
+      ) {
+      //  truncate
+      }
+      if (
+        cV.end >
+        moment(cV.end)
+          .hour(workingHours.end.hour())
+          .minute(workingHours.end.minute())
+      ) {
+      //  truncate
+      }
+    }, []);
   }
   return timeWindow.difference(...busy);
 };
