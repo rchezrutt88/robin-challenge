@@ -1,5 +1,5 @@
-import { Interval } from 'luxon'
-import data from '../user_data-1.json'
+import { Interval } from "luxon";
+import data from "../user_data-1.json";
 
 interface Event {
   id: number;
