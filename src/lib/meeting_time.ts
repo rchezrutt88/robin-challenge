@@ -1,7 +1,5 @@
-import { Interval } from "luxon";
-import * as moment from "moment";
-const moment = require("moment");
-import data from "../user_data-1.json";
+import { Interval } from 'luxon'
+import data from '../user_data-1.json'
 
 interface Event {
   id: number;
@@ -34,60 +32,66 @@ interface MeetingTimeOptions {
   workingHours?: boolean;
 }
 
-const normalizeIntervals = (
-  workingHours: { start: string; end: string }[]
-): Interval | void => {
-  const workingDayArray = workingHours.map(i => {
-    const [startHour, startMinutes] = i.start.split(":");
-    const [endtHour, endMinutes] = i.end.split(":");
+const offHoursIntervals = (
+  timeWindow: Interval,
+  workingHours: { start: number[]; end: number[] }[]
+): Interval[] => {
+  const workingHoursArray = workingHours.map(i => {
     return Interval.fromDateTimes(
-      moment()
-        .set("hour", startHour)
-        .set("minute", startMinutes),
-      moment()
-        .set("hours", endtHour)
-        .set("minute", endMinutes)
+      timeWindow.start.set({ hour: i.start[0], minute: i.start[1] }),
+      timeWindow.start.set({ hour: i.end[0], minute: i.end[1] })
     );
   });
-  if (workingDayArray.length < 1) {
-    return;
-  }
+  return Interval.fromDateTimes(
+    timeWindow.start.startOf("day"),
+    timeWindow.start.endOf("day")
+  ).difference(...workingHoursArray);
 };
 
-const sliceWorkingHours: Interval[] = (
+const offHoursIntervalsOverTimeWindow = (
   timeWindow: Interval,
-  workingHours: Interval[]
-) => {
-  workingHours;
+  offHoursIntervals: Interval[]
+): Interval[] => {
+  const offHourIntervalsOverTimeWindow: Interval[] = [];
+  for (const interval of offHoursIntervals) {
+    for (
+      let start = interval.start, end = interval.end;
+      end < timeWindow.end;
+      start.plus({ days: 1 }), end.plus({ days: 1 })
+    ) {
+      offHourIntervalsOverTimeWindow.push(Interval.fromDateTimes(start, end));
+    }
+  }
+  return offHourIntervalsOverTimeWindow;
+};
+
+const extractWorkingHours = (
+  users: User[]
+): { start: number[]; end: number[] }[] => {
+  return users.map(u => {
+    return {
+      start: u.working_hours.start.split(":").map(e => parseInt(e)),
+      end: u.working_hours.end.split(":").map(e => parseInt(e))
+    };
+  });
 };
 
 export const getMeetingTimes = (
   timeWindow: Interval,
   users: User[],
-  options?: MeetingTimeOptions = {}
+  options: MeetingTimeOptions = {}
 ): Interval[] => {
   const busy: Interval[] = Interval.merge(
     users.map(u => toIntervalArray(u.events)).flat()
   );
   if (options.workingHours) {
-    return timeWindow.difference(...busy).reduce((acc, cV) => {
-      if (
-        cV.start <
-        moment(cV.start)
-          .hour(workingHours.start.hour())
-          .minute(workingHours.start.minute())
-      ) {
-      //  truncate
-      }
-      if (
-        cV.end >
-        moment(cV.end)
-          .hour(workingHours.end.hour())
-          .minute(workingHours.end.minute())
-      ) {
-      //  truncate
-      }
-    }, []);
+    return timeWindow.difference(
+      ...busy,
+      ...offHoursIntervalsOverTimeWindow(
+        timeWindow,
+        offHoursIntervals(timeWindow, extractWorkingHours(users))
+      )
+    );
   }
   return timeWindow.difference(...busy);
 };
