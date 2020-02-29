@@ -35,19 +35,23 @@ app.get("/available_times", (req, res, next) => {
       )}\n`
     });
   }
-  next();
+  return next();
 });
 
 app.get("/available_times", (req, res, next) => {
   const users = findUsers(...req.body.user_ids);
+  if (users.length < 1) {
+    res.status(404);
+    return res.send({ error: `Cannot find users with ids ${req.body.user_ids}` });
+  }
   const timeWindow = Interval.fromISO(`${req.body.start}/${req.body.end}`);
   const meetingTimes = getMeetingTimes(timeWindow, users);
   const responseBody = transformMeetingTimes(meetingTimes);
-  res.send({ responseBody });
+  return res.send({ responseBody });
 });
 
-app.use(function(req, res, next) {
-  next(createHttpError(404));
+app.use((req, res, next) => {
+  return next(createHttpError(404));
 });
 
 // error handler
@@ -58,7 +62,7 @@ app.use(function(
   next: NextFunction
 ) {
   res.status(err.status || 500);
-  res.send({ err });
+  return res.send({ err });
 });
 
 export default app;
