@@ -1,5 +1,5 @@
-import { Interval } from "luxon";
-import data from "../user_data-1.json";
+import { Interval } from 'luxon'
+import data from '../user_data-1.json'
 
 interface Event {
   id: number;
@@ -32,7 +32,7 @@ interface MeetingTimeOptions {
   workingHours?: boolean;
 }
 
-const offHoursIntervals = (
+const getOffHoursIntervals = (
   timeWindow: Interval,
   workingHours: { start: number[]; end: number[] }[]
 ): Interval[] => {
@@ -48,7 +48,7 @@ const offHoursIntervals = (
   ).difference(...workingHoursArray);
 };
 
-const offHoursIntervalsOverTimeWindow = (
+const getOffHoursIntervalsOverTimeWindow = (
   timeWindow: Interval,
   offHoursIntervals: Interval[]
 ): Interval[] => {
@@ -57,7 +57,7 @@ const offHoursIntervalsOverTimeWindow = (
     for (
       let start = interval.start, end = interval.end;
       end < timeWindow.end;
-      start.plus({ days: 1 }), end.plus({ days: 1 })
+      start = start.plus({ days: 1 }), end = end.plus({ days: 1 })
     ) {
       offHourIntervalsOverTimeWindow.push(Interval.fromDateTimes(start, end));
     }
@@ -87,9 +87,9 @@ export const getMeetingTimes = (
   if (options.workingHours) {
     return timeWindow.difference(
       ...busy,
-      ...offHoursIntervalsOverTimeWindow(
+      ...getOffHoursIntervalsOverTimeWindow(
         timeWindow,
-        offHoursIntervals(timeWindow, extractWorkingHours(users))
+        getOffHoursIntervals(timeWindow, extractWorkingHours(users))
       )
     );
   }
